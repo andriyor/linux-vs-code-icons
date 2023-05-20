@@ -3,20 +3,15 @@ import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
 
-import { generateXmlContent } from './helpers/xml';
-import { mkdirIfNotExist } from './helpers/fs';
+import { generateXmlContent, validateArg, mkdirIfNotExist } from './helpers';
 
 const argv = require('yargs-parser')(process.argv.slice(2));
 
 type GlobMapper = (name: string[]) => string[];
 
-// console.log(argv);
-// if (!argv.file) {
-//   console.log('provide file path to manifest');
-// }
-// if (path.extname(argv.file) !== 'json') {
-//   console.log('file should be json');
-// }
+if (!validateArg(argv)) {
+  process.exit();
+}
 
 const shareDir = path.join(os.homedir(), '.local/share');
 const mimeDir = path.join(shareDir, 'mime');
@@ -24,16 +19,11 @@ const iconDir = path.join(shareDir, 'icons/hicolor/scalable/mimetypes');
 
 mkdirIfNotExist(iconDir);
 
-const manifestFilePath = '../vscode-icons/dist/src/vsicons-icon-theme.json';
+const manifestFilePath = argv.file;
 const manifestFile = fs.readFileSync(manifestFilePath, 'utf-8');
 const manifestJson = JSON.parse(manifestFile);
 
 const langExt = JSON.parse(fs.readFileSync('data/langExt.json', 'utf-8'));
-
-const globsMap: Record<string, GlobMapper> = {
-  fileNames: (fileName: string[]) => fileName,
-  languageIds: (languageIds: string[]) => languageIds.map((languageId) => `*.${langExt[languageId]}`),
-};
 
 const generate = (name: string, iconRef: string, globs: string[]) => {
   const relativeIconPath = manifestJson.iconDefinitions[iconRef].iconPath;
@@ -46,6 +36,13 @@ const generate = (name: string, iconRef: string, globs: string[]) => {
   const manifestDir = manifestFilePath.replace(path.basename(manifestFilePath), '');
   const iconPath = path.resolve(manifestDir, relativeIconPath);
   fs.copyFileSync(iconPath, `${iconDir}/${name}.svg`);
+};
+
+console.log('Create manifest and icons');
+
+const globsMap: Record<string, GlobMapper> = {
+  fileNames: (fileName: string[]) => fileName,
+  languageIds: (languageIds: string[]) => languageIds.map((languageId) => `*.${langExt[languageId]}`),
 };
 
 const supported = Object.keys(globsMap);
@@ -80,4 +77,6 @@ for (const iconRef in iconFileExt) {
   generate(iconRefNormalized, iconRef, globs);
 }
 
+console.log('Update mime database');
 child_process.execSync(`update-mime-database ${mimeDir}`);
+console.log('Icons updated');
