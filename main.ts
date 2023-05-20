@@ -5,7 +5,9 @@ import child_process from 'child_process';
 
 import { XMLBuilder } from 'fast-xml-parser';
 
-const buildMimeType = (name: string) => {
+type GlobMapper = (name: string) => string;
+
+const buildMimeType = (name: string, globMapper: GlobMapper) => {
   return {
     comment: name,
     icon: {
@@ -13,7 +15,7 @@ const buildMimeType = (name: string) => {
     },
     'glob-deleteall': '',
     glob: {
-      '@_pattern': name,
+      '@_pattern': globMapper(name),
     },
     '@_type': `text/${name}`,
   };
@@ -40,8 +42,8 @@ const builder = new XMLBuilder({
   // preserveOrder: true
 });
 
-const generateXmlContent = (name: string) => {
-  const mimeType = buildMimeType(name);
+const generateXmlContent = (name: string, globMapper: GlobMapper) => {
+  const mimeType = buildMimeType(name, globMapper);
   const mimeJson = wrapMimeType(mimeType);
   return builder.build(mimeJson);
 };
@@ -58,15 +60,29 @@ const manifestFilePath = '../vscode-icons/dist/src/vsicons-icon-theme.json';
 const manifestFile = fs.readFileSync(manifestFilePath, 'utf-8');
 const manifestJson = JSON.parse(manifestFile);
 
-for (const filename in manifestJson.fileNames) {
-  const relativeIconPath = manifestJson.iconDefinitions[manifestJson.fileNames[filename]].iconPath;
-  const xmlContent = generateXmlContent(filename);
-  fs.writeFileSync(path.join(mimeDir, `packages/${filename}.xml`), xmlContent, {
-    flag: 'w',
-  });
-  const manifestDir = manifestFilePath.replace(path.basename(manifestFilePath), '');
-  const iconPath = path.resolve(manifestDir, relativeIconPath);
-  fs.copyFileSync(iconPath, `${iconDir}/${filename}.svg`);
+const langExt = JSON.parse(fs.readFileSync('data/langExt.json', 'utf-8'));
+
+const globsMap: Record<string, GlobMapper> = {
+  fileNames: (fileName: string) => fileName,
+  fileExtensions: (fileExtension: string) => `*${fileExtension}`,
+  languageIds: (languageId: string) => `*${langExt[languageId]}`,
+};
+
+const supported = Object.keys(globsMap);
+
+for (const globsMapElement in manifestJson) {
+  if (supported.includes(globsMapElement)) {
+    for (const filename in manifestJson[globsMapElement]) {
+      const relativeIconPath = manifestJson.iconDefinitions[manifestJson[globsMapElement][filename]].iconPath;
+      const xmlContent = generateXmlContent(filename, globsMap[globsMapElement]);
+      fs.writeFileSync(path.join(mimeDir, `packages/${filename}.xml`), xmlContent, {
+        flag: 'w',
+      });
+      const manifestDir = manifestFilePath.replace(path.basename(manifestFilePath), '');
+      const iconPath = path.resolve(manifestDir, relativeIconPath);
+      fs.copyFileSync(iconPath, `${iconDir}/${filename}.svg`);
+    }
+  }
 }
 
 child_process.execSync(`update-mime-database ${mimeDir}`);
