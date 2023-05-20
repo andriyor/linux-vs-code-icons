@@ -3,7 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
 
-import { XMLBuilder } from 'fast-xml-parser';
+import { generateXmlContent } from './helpers/xml';
+import { mkdirIfNotExist } from './helpers/fs';
 
 const argv = require('yargs-parser')(process.argv.slice(2));
 
@@ -17,58 +18,9 @@ type GlobMapper = (name: string[]) => string[];
 //   console.log('file should be json');
 // }
 
-const buildMimeType = (name: string, globs: string[]) => {
-  return {
-    comment: name,
-    icon: {
-      '@_name': name,
-    },
-    'glob-deleteall': '',
-    glob: globs.map((glob) => {
-      return {
-        '@_pattern': glob,
-      };
-    }),
-    '@_type': `text/${name}`,
-  };
-};
-
-const wrapMimeType = (mimeType: unknown) => {
-  return {
-    '?xml': {
-      '@_version': '1.0',
-      '@_encoding': 'UTF-8',
-    },
-    'mime-info': {
-      'mime-type': mimeType,
-      '@_xmlns': 'http://www.freedesktop.org/standards/shared-mime-info',
-    },
-  };
-};
-
-const builder = new XMLBuilder({
-  ignoreAttributes: false,
-  suppressEmptyNode: true,
-  format: true,
-  // not working?
-  // preserveOrder: true
-});
-
-const generateXmlContent = (name: string, globMapper: string[]) => {
-  const mimeType = buildMimeType(name, globMapper);
-  const mimeJson = wrapMimeType(mimeType);
-  return builder.build(mimeJson);
-};
-
 const shareDir = path.join(os.homedir(), '.local/share');
 const mimeDir = path.join(shareDir, 'mime');
 const iconDir = path.join(shareDir, 'icons/hicolor/scalable/mimetypes');
-
-const mkdirIfNotExist = (path: string) => {
-  if (!fs.existsSync(path)) {
-    fs.mkdirSync(path);
-  }
-};
 
 mkdirIfNotExist(iconDir);
 
