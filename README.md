@@ -5,7 +5,7 @@ Generate freedesktop [shared-mime-info](https://freedesktop.org/wiki/Specificati
 ## TODO
 
 - [x] icons for fileNames
-- [ ] fileExtensions
-- [ ] languageIds
+- [x] fileExtensions
+- [x] languageIds
 - [ ] cli
 - [ ] mac support
