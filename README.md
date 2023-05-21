@@ -26,15 +26,35 @@ git clone git@github.com:PKief/vscode-material-icon-theme.git
 cd vscode-material-icon-theme
 npm i
 npm run build
-cd ../linux-vs-code-icons
-npx tsx src/index.ts --file ../vscode-icons/dist/src/vsicons-icon-theme.json
+cd ../vscode-material-icon-theme
+npx tsx src/index.ts --file ../vscode-material-icon-theme/dist/material-icons.json
 ```
 
 Example of result on [Krusader](https://krusader.org/)
 
-<img src="https://user-images.githubusercontent.com/11459840/239712539-31ed3a36-570a-4995-9460-a95259666fd2.png"
-     alt="Markdown Monster icon"
-     style="float: left; margin-right: 10px;" />
+<img src="https://user-images.githubusercontent.com/11459840/239712539-31ed3a36-570a-4995-9460-a95259666fd2.png"/>
+
+
+## How it works
+
+Script reads VS code file icon theme, copy `svg` icons to `.local/share/icons/hicolor/scalable/mimetypes` directory and create shared-mime-info file in `.local/share/mime/packages` directory based on file extension.
+
+Example for `.tsx` files:
+
+`.local/share/mime/packages/typescriptreact.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="text/typescriptreact">
+    <comment>typescriptreact</comment>
+    <icon name="typescriptreact"/>
+    <glob-deleteall/>
+    <glob pattern="*.tsx"/>
+  </mime-type>
+</mime-info>
+
+```
 
 
 ## TODO
@@ -42,5 +62,5 @@ Example of result on [Krusader](https://krusader.org/)
 - [x] fileNames
 - [x] fileExtensions
 - [x] languageIds
-- [x] cli
-- [ ] mac support
+- [x] CLI
+- [ ] [mac support](https://superuser.com/questions/178316/how-to-set-an-icon-for-a-file-type-on-mac)
