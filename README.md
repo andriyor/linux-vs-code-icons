@@ -4,6 +4,11 @@ Generate freedesktop [shared-mime-info](https://freedesktop.org/wiki/Specificati
 
 ## Usage
 
+```shell
+git clone git@github.com:andriyor/linux-vs-code-icons.git
+```
+
+For [vscode-icons](https://github.com/vscode-icons/vscode-icons)
 
 ```shell
 git clone git@github.com:vscode-icons/vscode-icons.git
@@ -14,6 +19,19 @@ cd ../linux-vs-code-icons
 npx tsx src/index.ts --file ../vscode-icons/dist/src/vsicons-icon-theme.json
 ```
 
+For [vscode-material-icon-theme](https://github.com/PKief/vscode-material-icon-theme)
+
+```shell
+git clone git@github.com:PKief/vscode-material-icon-theme.git
+cd vscode-material-icon-theme
+npm i
+npm run build
+cd ../linux-vs-code-icons
+npx tsx src/index.ts --file ../vscode-icons/dist/src/vsicons-icon-theme.json
+```
+
+Example of result on [Krusader](https://krusader.org/)
+
 <img src="https://user-images.githubusercontent.com/11459840/239712539-31ed3a36-570a-4995-9460-a95259666fd2.png"
      alt="Markdown Monster icon"
      style="float: left; margin-right: 10px;" />
@@ -21,7 +39,7 @@ npx tsx src/index.ts --file ../vscode-icons/dist/src/vsicons-icon-theme.json
 
 ## TODO
 
-- [x] icons for fileNames
+- [x] fileNames
 - [x] fileExtensions
 - [x] languageIds
 - [x] cli
