@@ -25,5 +25,4 @@ npx tsx src/index.ts --file ../vscode-icons/dist/src/vsicons-icon-theme.json
 - [x] fileExtensions
 - [x] languageIds
 - [x] cli
-- [ ] fix mdx icon
 - [ ] mac support
