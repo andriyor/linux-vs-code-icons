@@ -56,6 +56,11 @@ Example for `.tsx` files:
 
 ```
 
+And then run such command
+
+```shell
+update-mime-database ~/.local/share/mime
+```
 
 ## TODO
 
@@ -63,4 +68,5 @@ Example for `.tsx` files:
 - [x] fileExtensions
 - [x] languageIds
 - [x] CLI
+- [ ] fix broken mime types overrides 
 - [ ] [mac support](https://superuser.com/questions/178316/how-to-set-an-icon-for-a-file-type-on-mac)
